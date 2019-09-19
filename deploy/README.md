@@ -19,9 +19,10 @@ Create service accounts per cluster:
 
 ```bash
 CLUSTER_DOMAIN=kops.example.com
+NAMESPACE=default
 for c in cluster1 cluster2; do
     CONTEXT=${c}.${CLUSTER_DOMAIN}
-    kubectl --context ${CONTEXT} apply -f yaml/rbac.yaml
+    kubectl --context ${CONTEXT} -n ${NAMESPACE} apply -f yaml/rbac.yaml
 done
 ```
 
@@ -29,9 +30,10 @@ Generate kubeconfig with sa JWT token and context for each cluster (OSX using `b
 
 ```bash
 CLUSTER_DOMAIN=kops.example.com
+NAMESPACE=default
 for c in cluster1 cluster2; do
     CONTEXT=${c}.${CLUSTER_DOMAIN}
-    TOKEN=$(kubectl --context ${CONTEXT} -n admin get secret `kubectl --context ${CONTEXT} -n admin get sa kube-web-view -o json | jq -r .secrets[].name` -o json | jq -r .data[\"token\"] | base64 -D)
+    TOKEN=$(kubectl --context ${CONTEXT} -n ${NAMESPACE} get secret `kubectl --context ${CONTEXT} -n ${NAMESPACE} get sa kube-web-view -o json | jq -r .secrets[].name` -o json | jq -r .data.token | base64 -D)
     kubectl --context ${CONTEXT} config view --minify --raw > kubeconfig-${c}.yaml
     KUBECONFIG=kubeconfig-${c}.yaml kubectl config set-credentials ${CONTEXT}-kube-web-view-sa --token=$TOKEN
     KUBECONFIG=kubeconfig-${c}.yaml kubectl config set-context ${CONTEXT} --cluster=${CONTEXT}  --user=${CONTEXT}-kube-web-view-sa
@@ -72,7 +74,8 @@ Or you may use something like [sealed-secrets](https://github.com/bitnami-labs/s
 After setting up the sealed secrets controller and fetching the public certificate locally, create a secret from the kubeconfig and seal it as follows:
 
 ```console
-kubectl create secret generic kube-web-view --from-file=config=kubeconfig.yaml -o yaml --dry-run | kubeseal -n admin --cert ./pub-cert.pem --format yaml >kubeconfig-sealed.yaml
+NAMESPACE=default
+kubectl create secret generic kube-web-view --from-file=config=kubeconfig.yaml -o yaml --dry-run | kubeseal -n ${NAMESPACE} --cert ./pub-cert.pem --format yaml >kubeconfig-sealed.yaml
 kubectl apply -f kubeconfig-sealed.yaml
 ```
 
