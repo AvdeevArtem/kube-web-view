@@ -97,5 +97,5 @@ helm upgrade \
 Don't forget to remove the unencrypted secrets (and be careful not to commit them to git ... )
 
 ```console
-rm kubconfig*.yaml
+rm kubeconfig*.yaml
 ```
