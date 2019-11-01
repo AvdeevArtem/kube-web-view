@@ -60,6 +60,8 @@ logger = logging.getLogger(__name__)
 HEALTH_PATH = "/health"
 OAUTH2_CALLBACK_PATH = "/oauth2/callback"
 
+CLUSTER_REGEX = r'[^/{}]+\/?[^/{}]+'
+
 CLUSTER_MANAGER = "cluster_manager"
 CONFIG = "config"
 THEME_SETTINGS = "theme_settings"
@@ -408,7 +410,7 @@ async def get_cluster_list(request, session):
     return {"clusters": clusters}
 
 
-@routes.get("/clusters/{cluster:[^{}]+}")
+@routes.get(f'/clusters/{{cluster:{CLUSTER_REGEX}}}')
 @aiohttp_jinja2.template("cluster.html")
 @context()
 async def get_cluster(request, session):
@@ -455,7 +457,7 @@ def get_cell_class(table_or_plural, column_index_or_name, value):
     return None
 
 
-@routes.get("/clusters/{cluster:[^{}]+}/_resource-types")
+@routes.get(f'/clusters/{{cluster:{CLUSTER_REGEX}}}/_resource-types')
 @aiohttp_jinja2.template("resource-types.html")
 @context()
 async def get_cluster_resource_types(request, session):
@@ -781,7 +783,7 @@ async def download_yaml(request, resource):
     return response
 
 
-@routes.get("/clusters/{cluster:[^{}]+}/namespaces/{namespace}/_resource-types")
+@routes.get(f'/clusters/{{cluster:{CLUSTER_REGEX}}}/namespaces/{{namespace}}/_resource-types')
 @aiohttp_jinja2.template("resource-types.html")
 @context()
 async def get_namespaced_resource_types(request, session):
@@ -803,8 +805,8 @@ async def get_namespaced_resource_types(request, session):
     }
 
 
-@routes.get("/clusters/{cluster:[^{}]+}/{plural}")
-@routes.get("/clusters/{cluster:[^{}]+}/namespaces/{namespace}/{plural}")
+@routes.get(f'/clusters/{{cluster:{CLUSTER_REGEX}}}/{{plural}}')
+@routes.get(f'/clusters/{{cluster:{CLUSTER_REGEX}}}/namespaces/{{namespace}}/{{plural}}')
 @aiohttp_jinja2.template("resource-list.html")
 @context()
 async def get_resource_list(request, session):
@@ -895,8 +897,8 @@ async def get_resource_list(request, session):
     }
 
 
-@routes.get("/clusters/{cluster:[^{}]+}/{plural}/{name}")
-@routes.get("/clusters/{cluster:[^{}]+}/namespaces/{namespace}/{plural}/{name}")
+@routes.get(f'/clusters/{{cluster:{CLUSTER_REGEX}}}/{{plural}}/{{name}}')
+@routes.get(f'/clusters/{{cluster:{CLUSTER_REGEX}}}/namespaces/{{namespace}}/{{plural}}/{{name}}')
 @aiohttp_jinja2.template("resource-view.html")
 @context()
 async def get_resource_view(request, session):
@@ -1050,7 +1052,7 @@ def pod_color(name):
     return "#%02x%02x%02x" % (int(r * 255), int(g * 255), int(b * 255))
 
 
-@routes.get("/clusters/{cluster:[^{}]+}/namespaces/{namespace}/{plural}/{name}/logs")
+@routes.get(f'/clusters/{{cluster:{CLUSTER_REGEX}}}/namespaces/{{namespace}}/{{plural}}/{{name}}/logs')
 @aiohttp_jinja2.template("resource-logs.html")
 @context()
 async def get_resource_logs(request, session):
