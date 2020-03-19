@@ -48,8 +48,9 @@ class ClusterManager:
                     cluster.api.session.auth = OAuth2BearerTokenAuth(
                         self.cluster_auth_token_path
                     )
-                _clusters[cluster.name] = Cluster(
-                    cluster.name,
+                sanitized_name = cluster.name.replace("/", ":")
+                _clusters[sanitized_name] = Cluster(
+                    sanitized_name,
                     cluster.api,
                     cluster.labels,
                     cluster.spec,
