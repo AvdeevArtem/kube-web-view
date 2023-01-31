@@ -10,14 +10,14 @@
         <div class="navbar-start">
             <a class="navbar-item {{ 'is-active' if page == 'clusters' }}" href="/clusters">Clusters</a>
             {% if namespaces: %}
-            <div id="namespace-dropdown" class="navbar-item has-dropdown" onclick="this.onClickHandler(this)">
+            <div id="namespace-dropdown" class="navbar-item has-dropdown">
                 <a class="navbar-link">
                     {{ namespace }}
                 </a>
 
                 <div class="navbar-dropdown">
                     <div class="control">
-                        <input id="namespace-searchbox" type="text" placeholder="type to filter" class="input is-transparent" oninput="this.onInputHandler(this);" onchange="this.onChangeHandler()">
+                        <input id="namespace-searchbox" type="text" placeholder="type to filter" class="input is-transparent">
                     </div>
                     {% for ns in namespaces: %}
                     <a class="navbar-item namespace-item" href="/clusters/{{ cluster}}/namespaces/{{ ns.name }}">
