@@ -92,4 +92,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const nsDropdown = document.getElementById('namespace-dropdown');
+  if (nsDropdown) {
+    nsDropdown.onClickHandler = function (self) {
+      self.classList.toggle('is-active');
+      if (self.classList.contains('is-active')) {
+        document.getElementById('namespace-searchbox').focus();
+      }
+    };
+  }
+
+  const nsSearchbox = document.getElementById('namespace-searchbox');
+  if (nsSearchbox) {
+    nsSearchbox.onInputHandler = function(self) {
+      const filterText = self.value;
+      document.querySelectorAll('.namespace-item').forEach(element => {
+        if (element.innerText.indexOf(filterText) == -1) {
+          element.classList.add('is-hidden');
+        } else {
+          element.classList.remove('is-hidden');
+        }
+      });
+    }
+    nsSearchbox.onChangeHandler = function() {
+      // select the first matching element
+      const elements = document.querySelectorAll('.namespace-item');
+      for(let i=0; i<elements.length; i++) {
+        const element = elements[i];
+        if (!element.classList.contains('is-hidden')) {
+          element.click();
+          break;
+        }
+      }
+    };  
+  }
+
 });
