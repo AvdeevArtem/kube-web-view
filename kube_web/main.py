@@ -284,7 +284,7 @@ def main(argv=None):
         args.preferred_api_versions,
     )
     app = get_app(cluster_manager, args)
-    if not args.show_access_logs:
-        aiohttp.web.run_app(app, port=args.port, access_log=None, handle_signals=False)
-    else:
+    if args.show_access_logs:
         aiohttp.web.run_app(app, port=args.port, handle_signals=False)
+    else:
+        aiohttp.web.run_app(app, port=args.port, access_log=None, handle_signals=False)
