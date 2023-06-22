@@ -139,9 +139,9 @@ def parse_args(argv=None):
         help="Enable container logs (hidden by default as they can contain sensitive information)",
     )
     parser.add_argument(
-        "--show-access-logs",
+        "--no-access-logs",
         action="store_true",
-        help="Enable access logs (hidden by default as they contain sensitive information)",
+        help="Disable access logs (enabled by default)",
     )
     parser.add_argument(
         "--show-secrets",
@@ -284,7 +284,7 @@ def main(argv=None):
         args.preferred_api_versions,
     )
     app = get_app(cluster_manager, args)
-    if args.show_access_logs:
-        aiohttp.web.run_app(app, port=args.port, handle_signals=False)
-    else:
+    if args.no_access_logs:
         aiohttp.web.run_app(app, port=args.port, access_log=None, handle_signals=False)
+    else:
+        aiohttp.web.run_app(app, port=args.port, handle_signals=False)
