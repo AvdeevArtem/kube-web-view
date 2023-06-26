@@ -1368,9 +1368,8 @@ async def auth(request, handler):
         # Get access token
         code = request.query["code"]
         try:
-            original_url = base64.urlsafe_b64decode(request.query["state"]).decode(
-                "utf-8"
-            )
+            state = base64.urlsafe_b64decode(request.query["state"]).decode("utf-8")
+            original_url = state["original_url"]
         except Exception:
             original_url = "/"
         redirect_uri = str(request.url.with_path(OAUTH2_CALLBACK_PATH))
@@ -1408,7 +1407,7 @@ async def auth(request, handler):
             # NOTE: we use urlsafe Base64 because some OAuth providers choke on certain characters
             # see https://codeberg.org/hjacobs/kube-web-view/issues/74
             params["state"] = base64.urlsafe_b64encode(
-                str(request.rel_url).encode("utf-8")
+                {"original_url": str(request.rel_url).encode("utf-8")}
             )
             scope = os.getenv("OAUTH2_SCOPE")
             if scope:
