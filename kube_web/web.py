@@ -1381,7 +1381,7 @@ async def auth(request, handler):
         if expires_in > FIVE_MINUTES * 2:
             # already expire session 5 minutes before actual expiry date
             # to make sure the access token is still valid during the request
-            expires = time.time() + expires_in + FIVE_MINUTES
+            expires = time.time() + expires_in - FIVE_MINUTES
         else:
             logger.warning(
                 f"auth token has a very short expiration time of {expires_in} seconds."
