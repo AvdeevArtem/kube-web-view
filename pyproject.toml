@@ -16,14 +16,14 @@ packages = [
 kube-web-view = 'kube_web:main.main'
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "~3.11"
 pykube-ng = ">=19.9.2"
 Jinja2 = "^3.0"
-aiohttp-jinja2 = "^1.1"
+aiohttp-jinja2 = "^1.5"
 Pygments = "^2.4"
-aiohttp_session = {version = "^2.7", extras = ["secure"]}
-aioauth-client = "^0.17.3"
-aiohttp_remotes = "^0.1.2"
+aiohttp_session = {version = "^2.12", extras = ["secure"]}
+aioauth-client = "^0.28.1"
+aiohttp_remotes = "^1.2.0"
 jmespath = "^0.9.4"
 [tool.poetry.dev-dependencies]
 pytest = "^7.0"
