@@ -54,7 +54,7 @@ There is one dependency (pyppeteer) that was downgraded from 2.0.0 to 0.0.25 due
    ```
    with:
    ```python
-   d = datetime.now(datetime.UTC) - date_time
+   d = datetime.now(datetime.UTC).replace(tzinfo=None) - date_time
    ```
 
 4. Consider updating the requests-html dependency or finding an alternative that works with the latest pyppeteer version.
