@@ -75,7 +75,7 @@ def test_oauth_callback(get_access_token):
     redirect_uri = f"https://kube-web-view.readthedocs.io{OAUTH2_CALLBACK_PATH}"
 
     get_access_token.assert_called_with(code, redirect_uri=redirect_uri)
-    assert type(response) == web.HTTPFound
+    assert type(response) is web.HTTPFound
     assert response.location == "https://example.com/original_url"
     assert callback_request.get(SESSION_KEY)["access_token"] == token
 

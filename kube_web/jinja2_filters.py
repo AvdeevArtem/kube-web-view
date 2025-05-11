@@ -1,7 +1,8 @@
 import colorsys
-import datetime
 import logging
 import re
+from datetime import datetime
+from datetime import timezone
 
 import pygments
 import yaml as pyyaml
@@ -81,12 +82,16 @@ def age_color(date_time, days=7, hue=0.39, value=0.21):
     :param days: upper limit for color calculation, in days
     :return: HTML color value string
     """
-
     if not date_time:
         return "auto"
     if isinstance(date_time, str):
-        date_time = datetime.datetime.strptime(date_time, "%Y-%m-%dT%H:%M:%SZ")
-    d = datetime.datetime.utcnow() - date_time
+        date_time = datetime.strptime(date_time, "%Y-%m-%dT%H:%M:%SZ")
+    # Ensure both datetimes are timezone-aware or both are naive
+    if date_time.tzinfo is not None:
+        now = datetime.now(timezone.utc)
+    else:
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+    d = now - date_time
     # we consider the last minute equal
     d = max(0, d.total_seconds() - 60)
     s = max(0, 1.0 - d / (days * 24.0 * 3600))

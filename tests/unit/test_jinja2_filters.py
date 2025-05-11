@@ -16,7 +16,7 @@ def test_pluralize():
 
 
 def test_age_color():
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(datetime.UTC)
     dt = now - datetime.timedelta(days=2)
     assert age_color(now, days=1) == "#00cf46"
     # older timestamps should be default bulma text color
