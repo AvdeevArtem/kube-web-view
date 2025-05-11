@@ -28,6 +28,7 @@ jmespath = "^1.0.1"
 urllib3 = "^2.4.0"
 websockets = "^15.0.1"
 pyee = "^13.0.0"
+lxml = {extras = ["html-clean"], version = "^5.4.0"}
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
 pytest-cov = "^6.1.1"
