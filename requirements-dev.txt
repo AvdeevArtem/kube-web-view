@@ -1,0 +1,7 @@
+pytest>=8.3.5,<9
+pytest-cov>=6.1.1,<7
+Sphinx>=8.2.3,<9
+sphinx-rtd-theme>=3.0.2,<4
+requests-html>=0.10.0,<0.11
+pytest-kind>=22.11.1
+pre-commit>=4.2.0,<5
