@@ -86,3 +86,79 @@ To start the Python web server locally with the default kubeconfig (`~/.kube/con
 ```
 make run
 ```
+# Migration from Poetry to uv
+
+This project has been migrated from Poetry to uv for dependency management. Here's what you need to know:
+
+## Key Changes
+
+1. **Dependency Management**: We now use `uv` instead of `poetry` for managing dependencies
+2. **Lock File**: `uv.lock` replaces `poetry.lock`
+3. **Dockerfile**: Updated to use `uv` for installing dependencies
+4. **Makefile**: Updated with new commands for `uv`
+
+## Development Setup
+
+Install dependencies for development:
+
+```bash
+# Install uv if you don't have it yet
+pip install uv
+
+# Install the project in development mode with all dev dependencies
+make setup.dev
+```
+
+## Running Tests
+
+```bash
+# Run all tests
+make test
+
+# Run only unit tests
+make test.unit
+
+# Run only e2e tests
+make test.e2e
+```
+
+## Building Docker Image
+
+```bash
+# Build local Docker image
+make docker.local
+
+# Build multi-arch Docker image
+make docker
+```
+
+## Adding New Dependencies
+
+To add a new dependency:
+
+```bash
+# Add a runtime dependency
+uv pip install package_name
+
+# Add a development dependency
+uv pip install --dev package_name
+
+# Update the lock file
+uv pip freeze > requirements.txt
+uv pip compile pyproject.toml
+```
+
+## CI/CD Changes
+
+The CI/CD pipeline has been updated to use `uv` instead of `poetry`. The main changes are:
+
+1. Installing dependencies with `uv pip install` instead of `poetry install`
+2. Using the new Dockerfile that uses `uv`
+
+## Troubleshooting
+
+If you encounter any issues with the migration, please:
+
+1. Delete any existing virtual environments
+2. Make sure you have the latest version of `uv` installed
+3. Run `make setup.dev` to reinstall all dependencies
