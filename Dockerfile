@@ -1,34 +1,63 @@
-FROM python:3.13.3
+FROM python:3.13.3-alpine AS builder
 
-WORKDIR /
+# Install build dependencies
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    libxml2-dev \
+    libxslt-dev \
+    python3-dev \
+    cargo \
+    openssl-dev \
+    git
 
-RUN pip3 install poetry
+WORKDIR /app
 
-COPY poetry.lock /
-COPY pyproject.toml /
+# Install uv
+RUN pip install uv
 
-# fake package to make Poetry happy (we will install the actual contents in the later stage)
-RUN mkdir /kube_web && touch /kube_web/__init__.py && touch /README.md
+# Copy dependency files
+COPY pyproject.toml uv.lock /app/
 
-RUN poetry config virtualenvs.create false && \
-    poetry install --no-interaction --only main --no-ansi
+# Install dependencies
+RUN uv pip install --system -r <(uv pip compile --python-version 3.13 pyproject.toml)
 
-FROM python:3.13.3-slim
+# Second stage: minimal runtime image
+FROM python:3.13.3-alpine
 
-WORKDIR /
+# Install runtime dependencies
+RUN apk add --no-cache \
+    libxml2 \
+    libxslt \
+    openssl \
+    # Add tzdata for timezone support
+    tzdata \
+    # Add CA certificates for HTTPS connections
+    ca-certificates
 
-# copy pre-built packages to this image
-COPY --from=0 /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+WORKDIR /app
 
-# now copy the actual code we will execute (poetry install above was just for dependencies)
-COPY kube_web /kube_web
+# Copy Python packages from builder stage
+COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy application code
+COPY kube_web /app/kube_web
 
 ARG VERSION=dev
 
-# replace build version in package and
+# Replace build version in package and
 # add build version to static asset links to break browser cache
-# see also "version" in Makefile
-RUN sed -i "s/^__version__ = .*/__version__ = \"${VERSION}\"/" /kube_web/__init__.py && \
-    sed -i "s/v=[0-9A-Za-z._-]*/v=${VERSION}/g" /kube_web/templates/base.html
+RUN sed -i "s/^__version__ = .*/__version__ = \"${VERSION}\"/" /app/kube_web/__init__.py && \
+    sed -i "s/v=[0-9A-Za-z._-]*/v=${VERSION}/g" /app/kube_web/templates/base.html
 
-ENTRYPOINT ["/usr/local/bin/python", "-m", "kube_web"]
+# Create a non-root user to run the application
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+# Set Python path to include our application
+ENV PYTHONPATH=/app
+
+# Run the application
+ENTRYPOINT ["python", "-m", "kube_web"]
