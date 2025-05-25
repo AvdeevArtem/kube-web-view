@@ -27,16 +27,16 @@ jobs:
           source .venv/bin/activate
           uv pip install -r requirements.txt
           uv pip install -r requirements-dev.txt
-          
+
       - name: Lint with pre-commit
         run: |
           pip install pre-commit
           pre-commit run --all-files
-          
+
       - name: Test with pytest
         run: |
           pytest --cov=kube_web tests/
-          
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
