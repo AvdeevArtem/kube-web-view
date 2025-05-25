@@ -15,7 +15,7 @@ RUN apk add --no-cache \
 WORKDIR /app
 
 # Install uv
-RUN pip install uv
+RUN pip install --no-cache-dir uv
 
 # Copy dependency files
 COPY pyproject.toml uv.lock /app/
@@ -34,7 +34,9 @@ RUN apk add --no-cache \
     # Add tzdata for timezone support
     tzdata \
     # Add CA certificates for HTTPS connections
-    ca-certificates
+    ca-certificates && \
+    # Clean up cache to reduce image size
+    rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
@@ -54,10 +56,27 @@ RUN sed -i "s/^__version__ = .*/__version__ = \"${VERSION}\"/" /app/kube_web/__i
 
 # Create a non-root user to run the application
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Create and set proper permissions for directories that need write access
+RUN mkdir -p /tmp/kube-web-view && \
+    chown -R appuser:appgroup /tmp/kube-web-view
+
+# Switch to non-root user
 USER appuser
 
 # Set Python path to include our application
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    # Set temporary directory to a writable location
+    TMPDIR=/tmp/kube-web-view
+
+# Expose the default port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget -q --spider http://localhost:8080/health || exit 1
 
 # Run the application
 ENTRYPOINT ["python", "-m", "kube_web"]
