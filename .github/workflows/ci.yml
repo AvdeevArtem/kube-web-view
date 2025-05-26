@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [ main, master ]
 
-permissions:
-  contents: read
-  security-events: write # This permission is needed for uploading SARIF data
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -44,6 +40,11 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
