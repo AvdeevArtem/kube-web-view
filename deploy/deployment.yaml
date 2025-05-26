@@ -13,12 +13,14 @@ spec:
     metadata:
       labels:
         application: kube-web-view
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: 'runtime/default'
     spec:
       serviceAccountName: kube-web-view
       containers:
       - name: kube-web-view
         # see https://codeberg.org/hjacobs/kube-web-view/releases
-        image: hjacobs/kube-web-view:23.2.0
+        image: avdeev/kube-web-view:24.0.0
         args:
         - --port=8080
         # uncomment the following line to enable pod logs
@@ -33,13 +35,42 @@ spec:
           httpGet:
             path: /health
             port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
         resources:
           limits:
-            memory: 100Mi
+            cpu: 200m
+            memory: 200Mi
           requests:
-            cpu: 5m
+            cpu: 50m
             memory: 100Mi
         securityContext:
           readOnlyRootFilesystem: true
           runAsNonRoot: true
           runAsUser: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        - name: TMPDIR
+          value: /tmp/kube-web-view
+        volumeMounts:
+        - name: tmp-volume
+          mountPath: /tmp/kube-web-view
+      volumes:
+      - name: tmp-volume
+        emptyDir: {}
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
